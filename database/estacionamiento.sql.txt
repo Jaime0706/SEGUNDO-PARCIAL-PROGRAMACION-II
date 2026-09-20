@@ -1,0 +1,91 @@
+
+ PARCIAL II - BASE DE DATOS POSTGRESQL
+ Base de datos: parcial2_estacionamiento
+
+1. CREACIÓN DE LA TABLA VEHICULO CON RESTRICCIONES
+DROP TABLE IF EXISTS vehiculo;
+
+CREATE TABLE vehiculo (
+    id SERIAL PRIMARY KEY,
+    placa VARCHAR(10) NOT NULL UNIQUE,
+    propietario VARCHAR(100) NOT NULL,
+    tipo VARCHAR(20) NOT NULL,
+    hora_ingreso VARCHAR(10) NOT NULL,
+    horas_utilizadas NUMERIC(5, 2) NOT NULL CHECK (horas_utilizadas > 0),
+    costo NUMERIC(8, 2) NOT NULL CHECK (costo >= 0),
+    activo BOOLEAN NOT NULL DEFAULT TRUE
+);
+
+
+2. INSERCIÓN DE REGISTROS (Mínimo 5 registros)
+
+INSERT INTO vehiculo (placa, propietario, tipo, hora_ingreso, horas_utilizadas, costo, activo) 
+VALUES ('P-101ABC', 'Carlos López', 'Automóvil', '08:00', 3.0, 30.00, TRUE);
+
+INSERT INTO vehiculo (placa, propietario, tipo, hora_ingreso, horas_utilizadas, costo, activo) 
+VALUES ('M-202XYZ', 'María Gómez', 'Motocicleta', '08:30', 2.0, 12.00, TRUE);
+
+INSERT INTO vehiculo (placa, propietario, tipo, hora_ingreso, horas_utilizadas, costo, activo) 
+VALUES ('P-303DEF', 'Juan Pérez', 'Automóvil', '09:00', 6.0, 54.00, TRUE); -- Aplica 10% desc (6*10 = 60 * 0.9)
+
+INSERT INTO vehiculo (placa, propietario, tipo, hora_ingreso, horas_utilizadas, costo, activo) 
+VALUES ('M-404GHI', 'Ana Martínez', 'Motocicleta', '10:15', 7.0, 37.80, TRUE); -- Aplica 10% desc (7*6 = 42 * 0.9)
+
+INSERT INTO vehiculo (placa, propietario, tipo, hora_ingreso, horas_utilizadas, costo, activo) 
+VALUES ('P-505JKL', 'Roberto Ruiz', 'Automóvil', '11:00', 1.5, 15.00, TRUE);
+
+
+
+3. CONSULTAS SOLICITADAS
+
+-- a. Consulta general seleccionando explícitamente las columnas
+SELECT id, placa, propietario, tipo, hora_ingreso, horas_utilizadas, costo, activo 
+FROM vehiculo;
+
+-- b. Consulta filtrada por tipo de vehículo
+SELECT id, placa, propietario, tipo, costo 
+FROM vehiculo 
+WHERE tipo = 'Automóvil';
+
+-- c. Consulta de vehículos cuyo costo sea superior a un valor determinado (ejemplo: Q30.00)
+SELECT placa, propietario, tipo, costo 
+FROM vehiculo 
+WHERE costo > 30.00;
+
+-- d. Consulta ordenada por costo de mayor a menor
+SELECT placa, propietario, tipo, horas_utilizadas, costo 
+FROM vehiculo 
+ORDER BY costo DESC;
+
+
+
+4. OPERACIONES DE ACTUALIZACIÓN Y ELIMINACIÓN
+
+-- a. Actualización de un registro mediante UPDATE
+UPDATE vehiculo 
+SET horas_utilizadas = 4.0, costo = 40.00 
+WHERE placa = 'P-101ABC';
+
+-- b. Cambio de estado de un vehículo (desactivar registro)
+UPDATE vehiculo 
+SET activo = FALSE 
+WHERE placa = 'M-202XYZ';
+
+-- c. Eliminación de un registro mediante DELETE
+DELETE FROM vehiculo 
+WHERE placa = 'P-505JKL';
+
+
+
+5. DEMOSTRACIÓN INTENCIONAL DE ERRORES (RESTRICCIONES)
+
+
+-- Demostración 1: Violación de la restricción UNIQUE en placa
+-- (Generará el mensaje de error en rojo por clave duplicada)
+INSERT INTO vehiculo (placa, propietario, tipo, hora_ingreso, horas_utilizadas, costo, activo) 
+VALUES ('P-101ABC', 'Pedro Ramírez', 'Automóvil', '12:00', 2.0, 20.00, TRUE);
+
+-- Demostración 2: Violación de la restricción CHECK en horas_utilizadas (<= 0)
+-- (Generará el mensaje de error en rojo por horas negativas)
+INSERT INTO vehiculo (placa, propietario, tipo, hora_ingreso, horas_utilizadas, costo, activo) 
+VALUES ('P-999ERR', 'Error Tester', 'Automóvil', '13:00', -2.0, 20.00, TRUE);
